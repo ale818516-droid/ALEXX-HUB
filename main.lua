@@ -522,16 +522,18 @@ local function updateESP()
                 if isEnemy(otherPlayer) and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0 then
                     local highlight = highlightObjects[otherPlayer]
                     
-                    if not highlight or highlight.Parent ~= char then
-                        if highlight then pcall(function() highlight:Destroy() end) end
-                        
-                        highlight = Instance.new("Highlight")
-                        highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                        highlight.FillColor = Color3.fromRGB(135, 206,235) -- Azul enemigo
-                        highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        highlight.Parent = char
-                        highlightObjects[otherPlayer] = highlight
-                    end
+                    -- Busca esta parte en tu función updateESP y cámbiala por esto:
+if not highlight or highlight.Parent ~= char then
+    if highlight then pcall(function() highlight:Destroy() end) end
+    
+    highlight = Instance.new("Highlight")
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+    highlight.FillColor = _G.HitboxColor -- <--- AHORA USA TU VARIABLE GLOBAL
+    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+    highlight.Parent = char
+    highlightObjects[otherPlayer] = highlight
+end
+
                 else
                     -- Si es aliado o está muerto, quitamos el ESP
                     if highlightObjects[otherPlayer] then
@@ -779,8 +781,15 @@ local function CreateColorBtn(color, transparency, isInv)
     btn.MouseButton1Click:Connect(function()
         _G.HitboxColor = color
         _G.HitboxTransparency = transparency
+        
+        -- Cambiar el botón del menú
         if hitboxEnabled then
             btnHitbox:FindFirstChild("UIStroke").Color = isInv and Color3.fromRGB(100, 100, 100) or color
+        end
+        
+        -- ESTO CONECTA EL ESP AL MOMENTO:
+        for _, highlight in pairs(highlightObjects) do
+            highlight.FillColor = _G.HitboxColor
         end
     end)
 end
