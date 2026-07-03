@@ -106,13 +106,15 @@ LaunchStroke.Parent = Launchpad
 LaunchStroke.Thickness = 2.5
 LaunchStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 
+-- Sustituye esta parte en tu script:
 local LogoImage = Instance.new("ImageLabel")
 LogoImage.Parent = Launchpad
 LogoImage.BackgroundTransparency = 1
-LogoImage.Image = "rbxassetid://103336031528183"
+LogoImage.Image = "rbxassetid://108497694953547" -- ID actualizado
 LogoImage.Size = UDim2.new(0, 42, 0, 42)
 LogoImage.Position = UDim2.new(0.5, -21, 0.5, -21)
 LogoImage.ScaleType = Enum.ScaleType.Fit
+
 
 local MainMenu = Instance.new("Frame")
 MainMenu.Name = "MainMenu"
