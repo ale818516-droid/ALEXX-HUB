@@ -915,3 +915,46 @@ task.spawn(function()
         end
     end
 end)
+
+-- BLOQUE FINAL: Botones de Cielo en la Pestaña Hitbox
+local btnSky1 = Instance.new("TextButton")
+btnSky1.Parent = HitboxPage
+btnSky1.Size = UDim2.new(0.95, 0, 0, 35)
+btnSky1.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+btnSky1.Text = "CIELO 1: 97135569821603"
+btnSky1.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnSky1.Font = Enum.Font.GothamBold
+btnSky1.TextSize = 12
+Instance.new("UICorner", btnSky1).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", btnSky1).Color = Color3.fromRGB(30, 30, 220)
+
+btnSky1.MouseButton1Click:Connect(function()
+    local Lighting = game:GetService("Lighting")
+    for _, obj in pairs(Lighting:GetChildren()) do if obj:IsA("Sky") then obj:Destroy() end end
+    local mySky = Instance.new("Sky")
+    local myID = "rbxassetid://97135569821603"
+    mySky.SkyboxBk, mySky.SkyboxDn, mySky.SkyboxFt = myID, myID, myID
+    mySky.SkyboxLf, mySky.SkyboxRt, mySky.SkyboxUp = myID, myID, myID
+    mySky.Parent = Lighting
+end)
+
+local btnSky2 = Instance.new("TextButton")
+btnSky2.Parent = HitboxPage
+btnSky2.Size = UDim2.new(0.95, 0, 0, 35)
+btnSky2.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+btnSky2.Text = "CIELO 2: 74875043101164"
+btnSky2.TextColor3 = Color3.fromRGB(255, 255, 255)
+btnSky2.Font = Enum.Font.GothamBold
+btnSky2.TextSize = 12
+Instance.new("UICorner", btnSky2).CornerRadius = UDim.new(0, 8)
+Instance.new("UIStroke", btnSky2).Color = Color3.fromRGB(200, 50, 50)
+
+btnSky2.MouseButton1Click:Connect(function()
+    local Lighting = game:GetService("Lighting")
+    for _, obj in pairs(Lighting:GetChildren()) do if obj:IsA("Sky") then obj:Destroy() end end
+    local mySky = Instance.new("Sky")
+    local myID = "rbxassetid://74875043101164"
+    mySky.SkyboxBk, mySky.SkyboxDn, mySky.SkyboxFt = myID, myID, myID
+    mySky.SkyboxLf, mySky.SkyboxRt, mySky.SkyboxUp = myID, myID, myID
+    mySky.Parent = Lighting
+end)
