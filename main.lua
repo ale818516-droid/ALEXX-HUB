@@ -1,3 +1,13 @@
+-- Pon esto justo al principio de todo tu script:
+local CoreGui = game:GetService("CoreGui")
+if CoreGui:FindFirstChild("ALEXX_FinalSystem") then
+    CoreGui.ALEXX_FinalSystem:Destroy()
+end
+
+if CoreGui:FindFirstChild("DiscordNotify") then
+    CoreGui.DiscordNotify:Destroy()
+end
+
 local function SanitizeName(str)
     return tostring(str):gsub('%s+', '')
 end
@@ -806,8 +816,8 @@ CreateColorBtn(Color3.fromRGB(255, 255, 255), 0.7, false)
 CreateColorBtn(Color3.fromRGB(255, 100, 0), 0.7, false)
 CreateColorBtn(Color3.fromRGB(120, 120, 120), 0.7, false)
 CreateColorBtn(Color3.fromRGB(0, 0, 0), 1, true)
--- Agrega esto junto a tus otros botones de color:
-CreateColorBtn(Color3.fromRGB(255, 0, 0), 0.7)
+-- Cámbialo por esto:
+CreateColorBtn(Color3.fromRGB(255, 0, 0), 0.7, false)
 
 local lblSize = Instance.new("TextLabel")
 lblSize.Parent = HitboxPage
