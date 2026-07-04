@@ -634,21 +634,21 @@ local function getBestTargetSilent()
     local mousePos = Vector2.new(Mouse.X, Mouse.Y)
 
     for _, p in pairs(Players:GetPlayers()) do
+        -- Verificaciones esenciales: jugador existente, personaje, cabeza y que no seas tú mismo
         if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
             local hrp = p.Character:FindFirstChild("HumanoidRootPart")
             local hum = p.Character:FindFirstChild("Humanoid")
             
+            -- ¡AQUÍ ESTÁ LA CLAVE! Verifica que la salud sea > 0 y que isEnemy sea true
             if hrp and hum and hum.Health > 0 and isEnemy(p) then
-                local prediction = hrp.Velocity * 0.08
-                local predictedPos = p.Character.Head.Position + prediction
+                local pos, onScreen = camera:WorldToViewportPoint(hrp.Position)
                 
-                local pos, onScreen = camera:WorldToViewportPoint(predictedPos)
-                
+                -- Si el enemigo está en pantalla, calculamos la distancia
                 if onScreen then
                     local distance = (Vector2.new(pos.X, pos.Y) - mousePos).Magnitude
                     if distance < shortestDistance then
                         shortestDistance = distance
-                        target = CFrame.new(predictedPos)
+                        target = hrp -- Apunta al HRP o a la cabeza, según prefieras
                     end
                 end
             end
