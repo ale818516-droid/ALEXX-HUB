@@ -1,16 +1,18 @@
--- Pon esto justo al principio de todo tu script:
 local CoreGui = game:GetService("CoreGui")
-if CoreGui:FindFirstChild("ALEXX_FinalSystem") then
-    CoreGui.ALEXX_FinalSystem:Destroy()
+local RunService = game:GetService("RunService")
+
+-- 1. Destruir interfaces previas
+if CoreGui:FindFirstChild("ALEXX_FinalSystem") then CoreGui.ALEXX_FinalSystem:Destroy() end
+if CoreGui:FindFirstChild("DiscordNotify") then CoreGui.DiscordNotify:Destroy() end
+
+-- 2. IMPORTANTE: Restaurar la metatabla original antes de crear una nueva
+local mt = getrawmetatable(game)
+if mt then
+    setreadonly(mt, false)
+    -- Aquí restauramos el __index original si es posible
+    -- O simplemente evitamos intentar hookear si ya existe
 end
 
-if CoreGui:FindFirstChild("DiscordNotify") then
-    CoreGui.DiscordNotify:Destroy()
-end
-
-local function SanitizeName(str)
-    return tostring(str):gsub('%s+', '')
-end
 
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -655,45 +657,43 @@ local function getBestTargetSilent()
     return target
 end
 
+local isHooked = false
+local oldIndex = nil
+
 local function enableSilentAim()
+    if isHooked then return end
     local mt = getrawmetatable(game)
-    local oldIndex = mt.__index
+    oldIndex = mt.__index
     setreadonly(mt, false)
     
     mt.__index = newcclosure(function(self, index)
-        if aimEnabled and self == Mouse and (index == "Hit" or index == "Target") then
+        if aimEnabled and self == Mouse and (index == "Hit") and not checkcaller() then
             local target = getBestTargetSilent()
+            
+            -- Validación clave: Si no hay objetivo, deja que el juego dispare normal
             if target then
-                if index == "Hit" then return target end
-                if index == "Target" then return target.Position end
+                -- Comprobamos si el rayo es válido para evitar que el servidor bloquee el disparo
+                local ray = workspace:Raycast(camera.CFrame.Position, (target.Position - camera.CFrame.Position).Unit * 500)
+                if ray and ray.Instance and ray.Instance:IsDescendantOf(Players.LocalPlayer.Character) == false then
+                    return target -- Solo si el disparo es "limpio" y visible
+                end
             end
         end
         return oldIndex(self, index)
     end)
-    
     setreadonly(mt, true)
-end
-
--- Asegúrate de usar esta única función de desactivación
-local function disableSilentAim()
-    aimEnabled = false
+    isHooked = true
 end
 
 local function disableSilentAim()
-    -- Para restaurar, simplemente recargamos el metatable original 
-    -- o reiniciamos el juego/script. 
-    -- Nota: Algunas ejecuciones no permiten "desactivar" el Hook tan fácil.
-    -- Si no se desactiva, una opción es hacer un flag booleano.
-    aimEnabled = false 
-end
-
-local function disableSilentAim()
+    if not isHooked then return end
     local mt = getrawmetatable(game)
-    local oldIndex = mt.__index
     setreadonly(mt, false)
     mt.__index = oldIndex
     setreadonly(mt, true)
+    isHooked = false
 end
+
 
 btnSilentAim.MouseButton1Click:Connect(function()
     aimEnabled = not aimEnabled
