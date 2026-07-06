@@ -814,7 +814,7 @@ CreateColorBtn(Color3.fromRGB(255, 255, 255), 0.7, false)
 CreateColorBtn(Color3.fromRGB(255, 100, 0), 0.7, false)
 CreateColorBtn(Color3.fromRGB(120, 120, 120), 0.7, false)
 CreateColorBtn(Color3.fromRGB(0, 0, 0), 1, true)
--- Cámbialo por esto:
+CreateColorBtn(Color3.fromRGB(0, 0, 0), 0.7, false)
 CreateColorBtn(Color3.fromRGB(255, 0, 0), 0.7, false)
 
 local lblSize = Instance.new("TextLabel")
