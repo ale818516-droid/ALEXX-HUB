@@ -1,16 +1,14 @@
-local CoreGui = game:GetService("CoreGui")
-local RunService = game:GetService("RunService")
-
--- 1. Destruir interfaces previas
-if CoreGui:FindFirstChild("ALEXX_FinalSystem") then CoreGui.ALEXX_FinalSystem:Destroy() end
-if CoreGui:FindFirstChild("DiscordNotify") then CoreGui.DiscordNotify:Destroy() end
-
--- 2. IMPORTANTE: Restaurar la metatabla original antes de crear una nueva
-local mt = getrawmetatable(game)
-if mt then
-    setreadonly(mt, false)
-    -- Aquí restauramos el __index original si es posible
-    -- O simplemente evitamos intentar hookear si ya existe
+-- Función para reconstruir el menú si se detecta que ha desaparecido
+local function SetupAutoRebuild()
+    game:GetService("RunService").Heartbeat:Connect(function()
+        -- Si el menú desaparece de CoreGui, lo volvemos a crear
+        if not game:GetService("CoreGui"):FindFirstChild("ALEXX_FinalSystem") then
+            -- Aquí deberías llamar a tu función principal de creación
+            -- Es mejor si encapsulas todo tu código de creación en:
+            -- local function BuildGUI() ... end
+            -- BuildGUI() 
+        end
+    end)
 end
 
 
