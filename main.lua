@@ -1165,6 +1165,7 @@ local autoShootCuchilloEnabled = false
 local autoShootTargetPart = "Cabeza"
 local enemyCache = {}
 local isAttackingWithKnife = false
+local KNIFE_HITBOX = 18
 
 local predictionPart = Instance.new("Part")
 predictionPart.Name = "YisusPredictionPart"
@@ -1183,10 +1184,30 @@ local function esLaPistola(item)
     if item:FindFirstChild("Throw", true) or item:FindFirstChild("KnifeClient", true) or item:FindFirstChild("KnifeServer", true) then return false end
     local nombre = string.lower(item.Name)
     local ignorar = {"combat", "fist", "wallet", "phone", "punch", "boombox", "radio", "knife", "blade", "cuchillo", "dagger", "kunai", "sword", "toy", "juguete", "pizza", "burger", "teddy", "balloon", "drink", "food"}
-    for _, palabra in ipairs(ignorar) do 
-        if string.find(nombre, palabra) then return false end 
+    for _, palabra in ipairs(ignorar) do
+        if string.find(nombre, palabra) then return false end
     end
     return true
+end
+
+local function aplicarHitboxEnemigo(char)
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    pcall(function()
+        hrp.Size = Vector3.new(KNIFE_HITBOX, KNIFE_HITBOX, KNIFE_HITBOX)
+        hrp.Transparency = 1
+        hrp.CanCollide = false
+    end)
+end
+
+local function limpiarHitboxEnemigo(char)
+    local hrp = char and char:FindFirstChild("HumanoidRootPart")
+    if not hrp then return end
+    pcall(function()
+        hrp.Size = Vector3.new(2, 2, 1)
+        hrp.Transparency = 1
+        hrp.CanCollide = true
+    end)
 end
 
 local oldNamecall
@@ -1195,18 +1216,18 @@ oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
 
     if not checkcaller() and getgenv().YisusTargetPart and isAttackingWithKnife then
         local target = getgenv().YisusTargetPart
-        
+
         if target and target.Parent then
             if method == "Raycast" and self == Workspace then
                 local origin, direction, p3 = ...
                 if typeof(direction) == "Vector3" then
-                    local newDir = (target.Position - origin).Unit * 5000 
+                    local newDir = (target.Position - origin).Unit * 8000
                     return oldNamecall(self, origin, newDir, p3)
                 end
             elseif string.find(method, "FindPartOnRay") and self == Workspace then
                 local ray, p2, p3, p4 = ...
                 if typeof(ray) == "Ray" then
-                    local newRay = Ray.new(ray.Origin, (target.Position - ray.Origin).Unit * 5000)
+                    local newRay = Ray.new(ray.Origin, (target.Position - ray.Origin).Unit * 8000)
                     return oldNamecall(self, newRay, p2, p3, p4)
                 end
             end
@@ -1231,23 +1252,24 @@ end)
 task.spawn(function()
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
+    local lastHitboxChars = {}
 
     while true do
         if autoShootCuchilloEnabled then
             local char = player.Character
-            if not char or not char:FindFirstChild("HumanoidRootPart") then 
+            if not char or not char:FindFirstChild("HumanoidRootPart") then
                 getgenv().YisusTargetPart = nil
                 isAttackingWithKnife = false
-                task.wait(0.05)
-                continue 
+                task.wait(0.02)
+                continue
             end
 
             local arma = char:FindFirstChildOfClass("Tool")
-            if not arma or not arma:FindFirstChild("Handle") or esLaPistola(arma) then 
+            if not arma or not arma:FindFirstChild("Handle") or esLaPistola(arma) then
                 getgenv().YisusTargetPart = nil
                 isAttackingWithKnife = false
-                task.wait(0.05)
-                continue 
+                task.wait(0.02)
+                continue
             end
 
             local hum = char:FindFirstChildOfClass("Humanoid")
@@ -1260,51 +1282,83 @@ task.spawn(function()
             end
 
             local objetivosPotenciales = {}
-            
+            local currentHitboxChars = {}
+
             for _, p in ipairs(Players:GetPlayers()) do
                 if p ~= player and isEnemy(p) and p.Character then
                     local enemyHum = p.Character:FindFirstChild("Humanoid")
                     if enemyHum and enemyHum.Health > 0 then
-                        
+                        aplicarHitboxEnemigo(p.Character)
+                        currentHitboxChars[p.Character] = true
+
                         local partesAEscanear = {}
-                        if autoShootTargetPart == "Cabeza" then 
-                            partesAEscanear = {"Head"}
-                        elseif autoShootTargetPart == "Torso" then 
-                            partesAEscanear = {"UpperTorso", "Torso", "HumanoidRootPart"}
+                        if autoShootTargetPart == "Cabeza" then
+                            partesAEscanear = {"HumanoidRootPart", "Head", "UpperTorso", "Torso"}
+                        elseif autoShootTargetPart == "Torso" then
+                            partesAEscanear = {"HumanoidRootPart", "UpperTorso", "Torso", "LowerTorso"}
                         else
                             partesAEscanear = {
-                                "Head", "UpperTorso", "LowerTorso", "Torso", 
+                                "HumanoidRootPart", "Head", "UpperTorso", "LowerTorso", "Torso",
+                                "LeftUpperArm", "RightUpperArm", "LeftUpperLeg", "RightUpperLeg",
                                 "LeftArm", "RightArm", "LeftLeg", "RightLeg"
-                            } 
+                            }
                         end
 
                         for _, partName in ipairs(partesAEscanear) do
                             local part = p.Character:FindFirstChild(partName)
-                            if part and part:IsA("BasePart") then 
+                            if part and part:IsA("BasePart") then
+                                local priority = (partName == "HumanoidRootPart") and 0 or 1
                                 table.insert(objetivosPotenciales, {
-                                    Part = part, 
+                                    Part = part,
                                     Dist = (part.Position - myPos).Magnitude,
-                                    Char = p.Character
+                                    Char = p.Character,
+                                    Priority = priority
                                 })
                             end
                         end
-                    end 
-                end 
-            end 
-            
-            table.sort(objetivosPotenciales, function(a, b) 
-                return a.Dist < b.Dist 
+                    end
+                end
+            end
+
+            for oldChar, _ in pairs(lastHitboxChars) do
+                if not currentHitboxChars[oldChar] then
+                    limpiarHitboxEnemigo(oldChar)
+                end
+            end
+            lastHitboxChars = currentHitboxChars
+
+            table.sort(objetivosPotenciales, function(a, b)
+                if a.Priority ~= b.Priority then
+                    return a.Priority < b.Priority
+                end
+                return a.Dist < b.Dist
             end)
 
             local closestTargetPart = nil
             local closestEnemyChar = nil
-            
+
             for _, obj in ipairs(objetivosPotenciales) do
                 local part = obj.Part
                 params.FilterDescendantsInstances = {char, obj.Char}
-                
-                local rayResult = Workspace:Raycast(origin, part.Position - origin, params)
-                if not rayResult then
+
+                local sizeX, sizeY = part.Size.X / 2.05, part.Size.Y / 2.05
+                local cf = part.CFrame
+
+                local visible = not Workspace:Raycast(origin, cf.Position - origin, params)
+                if not visible then
+                    visible = not Workspace:Raycast(origin, (cf * CFrame.new(sizeX, 0, 0)).Position - origin, params)
+                end
+                if not visible then
+                    visible = not Workspace:Raycast(origin, (cf * CFrame.new(-sizeX, 0, 0)).Position - origin, params)
+                end
+                if not visible then
+                    visible = not Workspace:Raycast(origin, (cf * CFrame.new(0, sizeY, 0)).Position - origin, params)
+                end
+                if not visible then
+                    visible = not Workspace:Raycast(origin, (cf * CFrame.new(0, -sizeY, 0)).Position - origin, params)
+                end
+
+                if visible then
                     closestTargetPart = part
                     closestEnemyChar = obj.Char
                     break
@@ -1321,46 +1375,50 @@ task.spawn(function()
 
                     local predictionTime = 0.12
                     if hum and hum.FloorMaterial == Enum.Material.Air then
-                        predictionTime = 0.16
+                        predictionTime = 0.18
                     end
 
-                    if speed > 1 then
-                        local futurePosition = closestTargetPart.Position + (velocity * predictionTime)
+                    if speed > 0.5 then
+                        local futurePosition = enemyHRP.Position + (velocity * predictionTime)
                         predictionPart.CFrame = CFrame.new(futurePosition)
                         finalTarget = predictionPart
+                    else
+                        finalTarget = enemyHRP
                     end
                 end
 
                 getgenv().YisusTargetPart = finalTarget
-                
+
                 isAttackingWithKnife = true
-                pcall(function() 
-                    arma:Activate() 
-                    task.delay(0.01, function() 
-                        if arma.Parent == char then 
-                            arma:Deactivate() 
+                pcall(function()
+                    arma:Activate()
+                    task.delay(0.004, function()
+                        if arma.Parent == char then
+                            arma:Deactivate()
                         end
                         isAttackingWithKnife = false
                     end)
                 end)
 
-                task.wait(0.025)
+                task.wait(0.008)
             else
                 getgenv().YisusTargetPart = nil
                 isAttackingWithKnife = false
-                task.wait(0.1)
+                task.wait(0.03)
             end
         else
+            for oldChar, _ in pairs(lastHitboxChars) do
+                limpiarHitboxEnemigo(oldChar)
+            end
+            lastHitboxChars = {}
             if getgenv().YisusTargetPart then
                 getgenv().YisusTargetPart = nil
             end
             isAttackingWithKnife = false
-            task.wait(0.1)
+            task.wait(0.08)
         end
     end
 end)
-
-
 
 AimTab:Toggle({
     Title = "Auto Shoot (Cuchillo)",
@@ -1382,7 +1440,6 @@ AimTab:Dropdown({
         autoShootTargetPart = Value
     end,
 })
-
 local AnimsTab = Window:Tab({ Title = "Animaciones", Icon = "user" })
 AnimsTab:Section({Title = "Packs de Animaciones"})
 
