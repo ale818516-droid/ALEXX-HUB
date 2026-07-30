@@ -1559,7 +1559,7 @@ local Emotes = {
     ["Baile2"] = "88050523705839",
     ["mediohueva"] = "92747295139963",
     ["Baile3"] = "104748118296461",
-    ["Tusa"] = "18526288497",
+    ["Elmejordetodos"] = "74430100028293",
 }
 
 local function StopEmote()
