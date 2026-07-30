@@ -1559,6 +1559,7 @@ local Emotes = {
     ["Baile2"] = "88050523705839",
     ["mediohueva"] = "92747295139963",
     ["Baile3"] = "104748118296461",
+    ["Tusa"] = "18526288497",
 }
 
 local function StopEmote()
@@ -1581,15 +1582,24 @@ local function PlayEmote(AnimationId)
         Animator.Parent = Humanoid
     end
 
-    local Animation = Instance.new("Animation")
-    Animation.AnimationId = "rbxassetid://" .. AnimationId
+    local function Reproducir()
+        local Animation = Instance.new("Animation")
+        Animation.AnimationId = "rbxassetid://" .. AnimationId
 
-    EmoteTrack = Animator:LoadAnimation(Animation)
-    EmoteTrack.Priority = Enum.AnimationPriority.Action
-    EmoteTrack.Looped = true
-    EmoteTrack:Play()
+        EmoteTrack = Animator:LoadAnimation(Animation)
+        EmoteTrack.Priority = Enum.AnimationPriority.Action
+        EmoteTrack:Play()
+
+        EmoteTrack.Stopped:Connect(function()
+            if EmoteTrack then
+                task.wait(0.05)
+                Reproducir()
+            end
+        end)
+    end
+
+    Reproducir()
 end
-
 local function ConectarHumanoid(character)
     local humanoid = character:WaitForChild("Humanoid")
 
@@ -1606,9 +1616,15 @@ end
 
 player.CharacterAdded:Connect(ConectarHumanoid)
 
+if player.Character then
+    ConectarHumanoid(player.Character)
+end
+
+player.CharacterAdded:Connect(ConectarHumanoid)
+
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
-    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3"},
+    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3", "Tusa"},
     Value = "Ninguno",
 
     Callback = function(Value)
