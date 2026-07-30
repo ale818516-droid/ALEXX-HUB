@@ -1557,6 +1557,7 @@ local Emotes = {
     ["Bubly"] = "93120341268524",
     ["Baile"] = "114774556469581",
     ["Baile2"] = "88050523705839",
+    ["mediohueva"] = "92747295139963",
 }
 
 local function StopEmote()
@@ -1606,7 +1607,7 @@ player.CharacterAdded:Connect(ConectarHumanoid)
 
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
-    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2"},
+    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva"},
     Value = "Ninguno",
 
     Callback = function(Value)
