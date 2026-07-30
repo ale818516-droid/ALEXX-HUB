@@ -1553,6 +1553,7 @@ local EmoteTrack
 
 local Emotes = {
     ["YB Jump"] = "15609995579",
+    ["Dance"] = "10714340543"
 }
 
 local function StopEmote()
@@ -1602,7 +1603,7 @@ player.CharacterAdded:Connect(ConectarHumanoid)
 
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
-    Values = {"Ninguno", "YB Jump"},
+    Values = {"Ninguno", "YB Jump", "Dance"},
     Value = "Ninguno",
 
     Callback = function(Value)
