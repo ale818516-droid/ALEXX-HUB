@@ -1545,6 +1545,64 @@ dropdownRef = AnimsTab:Dropdown({
     end
 })
 
+AnimsTab:Section({
+    Title = "Emotes"
+})
+
+local EmoteTrack
+
+local Emotes = {
+    ["YB Jump"] = "15609995579",
+}
+
+local function StopEmote()
+    if EmoteTrack then
+        EmoteTrack:Stop()
+        EmoteTrack:Destroy()
+        EmoteTrack = nil
+    end
+end
+
+local function PlayEmote(AnimationId)
+    StopEmote()
+
+    local Character = player.Character or player.CharacterAdded:Wait()
+    local Humanoid = Character:WaitForChild("Humanoid")
+
+    local Animator = Humanoid:FindFirstChildOfClass("Animator")
+    if not Animator then
+        Animator = Instance.new("Animator")
+        Animator.Parent = Humanoid
+    end
+
+    local Animation = Instance.new("Animation")
+    Animation.AnimationId = "rbxassetid://" .. AnimationId
+
+    EmoteTrack = Animator:LoadAnimation(Animation)
+    EmoteTrack.Priority = Enum.AnimationPriority.Action
+    EmoteTrack.Looped = true
+    EmoteTrack:Play()
+end
+
+AnimsTab:Dropdown({
+    Title = "Seleccionar Emote",
+    Values = {"Ninguno", "YB Jump"},
+    Value = "Ninguno",
+
+    Callback = function(Value)
+        if Value == "Ninguno" then
+            StopEmote()
+            return
+        end
+
+        local Id = Emotes[Value]
+        if Id then
+            PlayEmote(Id)
+        end
+    end
+})
+
+
 local PerformanceTab = Window:Tab({
     Title = "⚡ Performance",
     Icon = "gauge"
