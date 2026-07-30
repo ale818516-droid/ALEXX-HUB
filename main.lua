@@ -1584,6 +1584,22 @@ local function PlayEmote(AnimationId)
     EmoteTrack:Play()
 end
 
+local function ConectarHumanoid(character)
+    local humanoid = character:WaitForChild("Humanoid")
+
+    humanoid.Running:Connect(function(speed)
+        if speed > 0 then
+            StopEmote()
+        end
+    end)
+end
+
+if player.Character then
+    ConectarHumanoid(player.Character)
+end
+
+player.CharacterAdded:Connect(ConectarHumanoid)
+
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
     Values = {"Ninguno", "YB Jump"},
