@@ -1570,6 +1570,8 @@ local function StopEmote()
     end
 end
 
+--Borro todo esto ?
+
 local function PlayEmote(AnimationId)
     StopEmote()
 
@@ -1582,24 +1584,15 @@ local function PlayEmote(AnimationId)
         Animator.Parent = Humanoid
     end
 
-    local function Reproducir()
-        local Animation = Instance.new("Animation")
-        Animation.AnimationId = "rbxassetid://" .. AnimationId
+    local Animation = Instance.new("Animation")
+    Animation.AnimationId = "rbxassetid://" .. AnimationId
 
-        EmoteTrack = Animator:LoadAnimation(Animation)
-        EmoteTrack.Priority = Enum.AnimationPriority.Action
-        EmoteTrack:Play()
-
-        EmoteTrack.Stopped:Connect(function()
-            if EmoteTrack then
-                task.wait(0.05)
-                Reproducir()
-            end
-        end)
-    end
-
-    Reproducir()
+    EmoteTrack = Animator:LoadAnimation(Animation)
+    EmoteTrack.Priority = Enum.AnimationPriority.Action
+    EmoteTrack.Looped = true
+    EmoteTrack:Play()
 end
+
 local function ConectarHumanoid(character)
     local humanoid = character:WaitForChild("Humanoid")
 
@@ -1610,21 +1603,18 @@ local function ConectarHumanoid(character)
     end)
 end
 
+-- Conectar al personaje actual
 if player.Character then
     ConectarHumanoid(player.Character)
 end
 
-player.CharacterAdded:Connect(ConectarHumanoid)
-
-if player.Character then
-    ConectarHumanoid(player.Character)
-end
-
-player.CharacterAdded:Connect(ConectarHumanoid)
-
+-- Reconectar cuando reaparezca
+player.CharacterAdded:Connect(function(character)
+    ConectarHumanoid(character)
+end)
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
-    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3", "Tusa"},
+    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3", "Elmejordetodos"},
     Value = "Ninguno",
 
     Callback = function(Value)
