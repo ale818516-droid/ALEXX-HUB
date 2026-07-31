@@ -1560,7 +1560,9 @@ local Emotes = {
     ["mediohueva"] = "92747295139963",
     ["Baile3"] = "104748118296461",
     ["Elmejordetodos"] = "74430100028293",
+    ["Emote1"] = "82238508652742",
 }
+
 
 local function StopEmote()
     if EmoteTrack then
@@ -1614,7 +1616,7 @@ player.CharacterAdded:Connect(function(character)
 end)
 AnimsTab:Dropdown({
     Title = "Seleccionar Emote",
-    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3", "Elmejordetodos"},
+    Values = {"Ninguno", "YB Jump", "Dance", "Bubly", "Baile", "Baile2", "mediohueva", "Baile3", "Elmejordetodos", "Emote1"},
     Value = "Ninguno",
 
     Callback = function(Value)
